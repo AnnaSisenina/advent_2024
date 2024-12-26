@@ -1,4 +1,6 @@
+
 data = []
+
 
 with open("input6.txt", "r") as file:
     lines = file.readlines()
@@ -12,9 +14,8 @@ with open("input6.txt", "r") as file:
 
 num_rows = len(data)
 num_col = len (data[0])
-
-new_obstacles = set()
-checked_obstacle = set()
+count = 0
+new_obstacles = []
 
 right = False
 left = False
@@ -22,9 +23,7 @@ up = False
 down = False
 i = -1
 j = -1
-start_i = -1
-start_j = -1
-start_dir = ""
+
 
 def change_direction(direction):
     global right, left, up, down
@@ -46,46 +45,7 @@ def check_direction():
     if right: return "r"
     if left: return "l"
     if up: return "u"
-    else: return "d"
-
-def go_up():
-    global i, j, count
-    while  i != 0 and data[i-1][j] != "#":
-        if data[i][j] == ".":
-            new_obstacles.add((i, j))
-        i -= 1
-    if i > 0 and data[i-1][j] == "#":
-        change_direction("r")
-        
-
-def go_right():
-    global i, j, count
-    while j != num_col-1 and data[i][j+1] != "#":
-        if data[i][j] == ".":
-            new_obstacles.add((i, j))
-        j += 1
-    if j < num_rows-1 and data[i][j+1] == "#":
-        change_direction("d")
-    
-
-def go_down():
-    global i, j, count
-    while i != num_rows-1 and data[i+1][j] != "#":
-        if data[i][j] == ".":
-            new_obstacles.add((i, j))
-        i += 1
-    if i < num_rows-1 and data[i+1][j] == "#":
-        change_direction("l")   
-
-def go_left():
-    global i, j, count
-    while j != 0 and data[i][j-1] != "#":
-        if data[i][j] == ".":
-            new_obstacles.add((i, j))
-        j -= 1
-    if j > 0 and data[i][j-1] == "#":
-        change_direction("u") 
-
+    if down: return "d"
 
 def check_right(p, q):
     check_pq = False
@@ -133,14 +93,48 @@ def check_up(p, q):
         return [True, [p+1, q], [p, q]]
     return [False, [-1, -1], [-1, -1]]
 
-def check():
-    check_stuck = False
-    i = start_i
-    j = start_j
-    direction = start_dir
 
+def check(dir, a, b):
+    global data
+    check_stuck = False
+    i = a
+    j = b
+    text = ""
+    return_i = -1
+    return_j = -1
+
+    direction = dir
     obstacles = []
     right, down, left, up = [True,-1,-1], [True,-1,-1], [True,-1,-1], [True,-1,-1]
+    if direction == "u":
+        obstacles.append([i-1,j])
+        text = data[i-1][j]
+        return_i = i-1
+        return_j = j
+        data[i-1][j] = "#"
+        direction = "r"
+    elif direction == "r":
+        obstacles.append([i,j+1])
+        text = data[i][j+1]
+        return_i = i
+        return_j = j+1
+        data[i][j+1] = "#"
+        direction = "d"
+    elif direction == "d":
+        obstacles.append([i+1,j])
+        text = data[i+1][j]
+        return_i = i+1
+        return_j = j
+        data[i+1][j] = "#"
+        direction = "l"
+    elif direction == "l":
+        obstacles.append([i,j-1])
+        text = data[i][j-1]
+        return_i = i
+        return_j = j-1
+        data[i][j-1] = "#"
+        direction = "u"
+
 
     while not check_stuck and right[0] == True and down[0] == True and left[0] == True and up[0] == True:
         if direction == "u":
@@ -177,9 +171,58 @@ def check():
                 if index % 4 == (len(obstacles)-1) % 4:
                     if obstacles[len(obstacles) - 1] == obstacles[index]:
                         check_stuck = True
+        
+        
+
+    if check_stuck and obstacles[0] not in new_obstacles:
+        new_obstacles.append(obstacles[0])
+    
+    data[return_i][return_j]=text
     
     return check_stuck
 
+def go_up():
+    global i, j, count
+    while  i != 0 and data[i-1][j] != "#":
+        if data[i][j] == ".":
+            data[i][j] = "X"
+            check("u", i, j)
+        i -= 1
+    if i > 0 and data[i-1][j] == "#":
+        change_direction("r")
+
+
+
+def go_right():
+    global i, j, count
+    while j != num_col-1 and data[i][j+1] != "#":
+        if data[i][j] == ".":
+            data[i][j] = "X"
+            check("r", i, j)
+        j += 1
+    if j < num_rows-1 and data[i][j+1] == "#":
+        change_direction("d")
+
+
+def go_down():
+    global i, j, count
+    while i != num_rows-1 and data[i+1][j] != "#":
+        if data[i][j] == ".":
+            data[i][j] = "X"
+            check("d", i, j)
+        i += 1
+    if i < num_rows-1 and data[i+1][j] == "#":
+        change_direction("l")
+
+def go_left():
+    global i, j, count
+    while j != 0 and data[i][j-1] != "#":
+        if data[i][j] == ".":
+            data[i][j] = "X"
+            check("l", i, j)
+        j -= 1
+    if j > 0 and data[i][j-1] == "#":
+        change_direction("u")
 
 for line in data:
     for symbol in line:
@@ -205,13 +248,6 @@ for line in data:
             break
 
 
-start_i = i
-start_j = j
-start_dir = check_direction()
-print (right, left, down, up, i, j)
-print (start_dir, start_i, start_j)
-
-
 while i != 0 and j != 0 and i != num_rows-1 and j != num_col-1:
     direction = check_direction()
     if direction == "u":
@@ -223,15 +259,9 @@ while i != 0 and j != 0 and i != num_rows-1 and j != num_col-1:
     if direction == "l":
         go_left()
 
-new_obstacles.add((i, j))
 
-for obstacle in new_obstacles:
-    data[obstacle[0]][obstacle[1]] = "#"
-    if check():
-        checked_obstacle.add(obstacle)
-    data[obstacle[0]][obstacle[1]] = "."
+print(len(new_obstacles))
 
-print(len(checked_obstacle))
 
 
 

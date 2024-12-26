@@ -55,9 +55,11 @@ def go_up():
         if data[i][j] == ".":
             count += 1
             data[i][j] = "X"
+            print(f"[{i}, {j}]", end=' ')
         i -= 1
     if i > 0 and data[i-1][j] == "#":
         change_direction("r")
+        print("right")
 
 def go_right():
     global i, j, count
@@ -65,9 +67,11 @@ def go_right():
         if data[i][j] == ".":
             count += 1
             data[i][j] = "X"
+            print(f"[{i}, {j}]", end=' ')
         j += 1
     if j < num_rows-1 and data[i][j+1] == "#":
         change_direction("d")
+        print("down")
 
 def go_down():
     global i, j, count
@@ -75,9 +79,11 @@ def go_down():
         if data[i][j] == ".":
             count += 1
             data[i][j] = "X"
+            print(f"[{i}, {j}]", end=' ')
         i += 1
     if i < num_rows-1 and data[i+1][j] == "#":
         change_direction("l")
+        print("left")
 
 def go_left():
     global i, j, count
@@ -85,9 +91,11 @@ def go_left():
         if data[i][j] == ".":
             count += 1
             data[i][j] = "X"
+            print(f"[{i}, {j}]", end=' ')
         j -= 1
     if j > 0 and data[i][j-1] == "#":
         change_direction("u")
+        print("up")
 
 for line in data:
     for symbol in line:
@@ -127,7 +135,5 @@ while i != 0 and j != 0 and i != num_rows-1 and j != num_col-1:
 data[i][j] = "X"
 count += 1
 
-for string in data:
-    print (string)
 
 print (count)
